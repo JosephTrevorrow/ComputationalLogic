@@ -9,6 +9,46 @@
 
 :- consult(library).
 
+%%% SANITY NOTES
+%
+% The name of a predicate includes its name and arity, e.g. pred/3
+%
+%
+%
+
+%%% INITIAL FEATURES NOTES
+
+%% HOW PROVE_QUESTION /3 WORKS
+% findall(R,prolexa:stored_rule(SessionId,R),Rulebase) - 
+%	find all rules in the session given the sessionID and stores in Rulebase
+% AND
+% (prove_rb(Query,Rulebase) -
+%	prove the query given the rulebase. If it can, then the code following -> is executed
+% IF PROVED
+% transform(Query,Clauses) -
+%	transform the query into clauses
+% phrase(sentence(Clauses),AnswerAtomList) -
+%	convert the list of clauses into a list of atoms that form the answer
+% atomics_to_string(AnswerAtomList," ",Answer) -
+%	convert the list of atoms into a string
+% ELSE
+% Answer = 'Sorry, I don\'t think this is the case' - (does the obvious)
+% )
+
+%% HOW EXPLAIN_QUESTION /3 WORKS
+% The same as prove_question/3, but with an additional argument, Proof, which is 
+% 	an accumulator for proofs to generate a proof tree
+
+%% HOW PSTEP2MESSAGE /2 WORKS
+% it just goes through each element in the list and prints it
+
+%% HOW KNOWN_RULE /2 WORKS
+% findall(R,prolexa:stored_rule(SessionId,R),Rulebase) -
+%	find all rules in the session given the sessionID and stores in Rulebase
+% AND
+% try((numbervars(Rule,0,_) -
+
+
 
 %%% Main question-answering engine adapted from nl_shell.pl %%%
 
