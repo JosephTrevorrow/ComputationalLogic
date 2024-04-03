@@ -18,6 +18,12 @@ iverb(p,M)			--> [Verb],   {pred2gr(_P,1,v/Verb,M)}.
 % unary predicates for adjectives, nouns and verbs
 pred(human,   1,[a/human,n/human]).
 pred(mortal,  1,[a/mortal,n/mortal]).
+
+% Joseph predicates
+pred(teacher, 1,[n/teacher]).
+pred(happy,  1,[a/happy]).
+
+% Extra predicates
 %pred(man,     1,[a/male,n/man]).
 %pred(woman,   1,[a/female,n/woman]).
 %pred(married, 1,[a/married]).
@@ -28,6 +34,7 @@ pred(bird,    1,[n/bird]).
 pred(penguin, 1,[n/penguin]).
 pred(sparrow, 1,[n/sparrow]).
 pred(fly,     1,[v/fly]).
+
 
 pred2gr(P,1,C/W,X=>Lit):-
 	pred(P,1,L),
@@ -72,6 +79,7 @@ determiner(p,X=>B,X=>H,[(H:-B)]) --> [all].
 
 proper_noun(s,tweety) --> [tweety].
 proper_noun(s,peter) --> [peter].
+proper_noun(s,joseph) --> [joseph].
 
 
 %%% questions %%%
