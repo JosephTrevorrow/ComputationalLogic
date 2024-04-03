@@ -35,11 +35,14 @@ pred(penguin, 1,[n/penguin]).
 pred(sparrow, 1,[n/sparrow]).
 pred(fly,     1,[v/fly]).
 
+% The semantic interpretation rules
 
 pred2gr(P,1,C/W,X=>Lit):-
 	pred(P,1,L),
 	member(C/W,L),
 	Lit=..[P,X].
+
+
 
 noun_s2p(Noun_s,Noun_p):-
 	( Noun_s=woman -> Noun_p=women
@@ -63,10 +66,16 @@ sword --> [that].
 % most of this follows Simply Logical, Chapter 7
 sentence1(C) --> determiner(N,M1,M2,C),noun(N,M1),verb_phrase(N,M2).
 sentence1([(L:-true)]) --> proper_noun(N,X),verb_phrase(N,X=>L).
+sentence1([(L:-false)]) --> proper_noun(N,X),neg_property(N,X=>L).
 
 verb_phrase(s,M) --> [is],property(s,M).
 verb_phrase(p,M) --> [are],property(p,M).
 verb_phrase(N,M) --> iverb(N,M).
+
+% Adding negation here, as not being something is a property
+neg_property(N,M) --> [not],property(N,M).
+neg_property(N,M) --> [is,not],property(N,M).
+
 
 property(N,M) --> adjective(N,M).
 property(s,M) --> [a],noun(s,M).
