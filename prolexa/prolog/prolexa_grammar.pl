@@ -63,14 +63,18 @@ sword --> [].
 sword --> [that]. 
 
 % most of this follows Simply Logical, Chapter 7
+
+sentence1(C) --> determiner(N,M1,M2,C),noun(N,M1),verb_phrase(N,M2).
+sentence1([(L:-true)]) --> proper_noun(N,X),verb_phrase(N,X=>L).
+
 sentence1([(not L:-true)]) --> proper_noun(N,X),verb_phrase(N, not X=>L).  % This is the correct way to do it, as it explicitly states that 
 % 	it is not true
 sentence1([(not H:-B)]) --> determiner(N,M1,M2,[(not H:-B)]),noun(N,M1),verb_phrase(N,not M2).
-sentence1(C) --> determiner(N,M1,M2,C),noun(N,M1),verb_phrase(N,M2).
-sentence1([(L:-true)]) --> proper_noun(N,X),verb_phrase(N,X=>L).
-% sentence1([(L:-false)]) --> proper_noun(N,X),neg_verb_phrase(N,X=>L). This is not right, as Prolog treats negation as failiure (it hasnt explicitly been stated therefore it isnt right)
-% 	
 
+
+% sentence1([(L:-false)]) --> proper_noun(N,X),neg_verb_phrase(N,X=>L). 
+% This is not right, as Prolog treats negation as failiure (it hasnt explicitly been stated therefore it isnt right)
+% 	
 
 % This not H:-B is the not replacement for sentence1(c) as we cannot just have a negated fact, it must be a rule "joseph is not happy", we cant just say not "happy"
 
@@ -78,16 +82,18 @@ sentence1([(L:-true)]) --> proper_noun(N,X),verb_phrase(N,X=>L).
 verb_phrase(s,M) --> [is],property(s,M).
 verb_phrase(p,M) --> [are],property(p,M).
 verb_phrase(N,M) --> iverb(N,M).
-verb_phrase(s,M) --> [is, not], property(s,M).
-verb_phrase(p,M) --> [are, not], property(p,M).
-verb_phrase(N,M) --> [does, not], iverb(N,M).
+verb_phrase(s,not M) --> [is], [not], property(s,M).
+verb_phrase(p,not M) --> [are], [not], property(p,M).
+verb_phrase(N,not M) --> [does], [not], iverb(N,M).
 
 property(N,M) --> adjective(N,M).
 property(s,M) --> [a],noun(s,M).
 property(p,M) --> noun(p,M).
 
 determiner(s,X=>B,X=>H,[(H:-B)]) --> [every].
+determiner(s,X=>B, not X=>H,[(not H:-B)]) --> [every].
 determiner(p,X=>B,X=>H,[(H:-B)]) --> [all].
+determiner(p,X=>B, not X=>H,[(not H:-B)]) --> [all].
 %determiner(p,X=>B,X=>H,[(H:-B)]) --> [].
 %determiner(p, sk=>H1, sk=>H2, [(H1:-true),(H2 :- true)]) -->[some].
 
@@ -105,7 +111,9 @@ qword --> [].
 %qword --> [whether]. 
 
 question1(Q) --> [who],verb_phrase(s,_X=>Q).
+question1(Q) --> [who],verb_phrase(s,[(not _X=>Q)]).
 question1(Q) --> [is], proper_noun(N,X),property(N,X=>Q).
+question1(Q) --> [is], proper_noun(N,X),property(N,not X=>Q).
 question1(Q) --> [does],proper_noun(_,X),verb_phrase(_,X=>Q).
 %question1((Q1,Q2)) --> [are,some],noun(p,sk=>Q1),
 %					  property(p,sk=>Q2).
