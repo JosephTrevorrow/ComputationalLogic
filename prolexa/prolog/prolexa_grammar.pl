@@ -23,6 +23,7 @@ pred(mortal,  1,[a/mortal,n/mortal]).
 pred(teacher, 1,[n/teacher]).
 pred(happy,  1,[a/happy]).
 
+
 % Extra predicates
 %pred(man,     1,[a/male,n/man]).
 %pred(woman,   1,[a/female,n/woman]).
@@ -41,8 +42,6 @@ pred2gr(P,1,C/W,X=>Lit):-
 	pred(P,1,L),
 	member(C/W,L),
 	Lit=..[P,X].
-
-
 
 noun_s2p(Noun_s,Noun_p):-
 	( Noun_s=woman -> Noun_p=women
@@ -64,18 +63,24 @@ sword --> [].
 sword --> [that]. 
 
 % most of this follows Simply Logical, Chapter 7
+sentence1([(not L:-true)]) --> proper_noun(N,X),verb_phrase(N, not X=>L).  % This is the correct way to do it, as it explicitly states that 
+% 	it is not true
+sentence1([(not H:-B)]) --> determiner(N,M1,M2,[(not H:-B)]),noun(N,M1),verb_phrase(N,not M2).
 sentence1(C) --> determiner(N,M1,M2,C),noun(N,M1),verb_phrase(N,M2).
 sentence1([(L:-true)]) --> proper_noun(N,X),verb_phrase(N,X=>L).
-sentence1([(L:-false)]) --> proper_noun(N,X),neg_property(N,X=>L).
+% sentence1([(L:-false)]) --> proper_noun(N,X),neg_verb_phrase(N,X=>L). This is not right, as Prolog treats negation as failiure (it hasnt explicitly been stated therefore it isnt right)
+% 	
+
+
+% This not H:-B is the not replacement for sentence1(c) as we cannot just have a negated fact, it must be a rule "joseph is not happy", we cant just say not "happy"
+
 
 verb_phrase(s,M) --> [is],property(s,M).
 verb_phrase(p,M) --> [are],property(p,M).
 verb_phrase(N,M) --> iverb(N,M).
-
-% Adding negation here, as not being something is a property
-neg_property(N,M) --> [not],property(N,M).
-neg_property(N,M) --> [is,not],property(N,M).
-
+verb_phrase(s,M) --> [is, not], property(s,M).
+verb_phrase(p,M) --> [are, not], property(p,M).
+verb_phrase(N,M) --> [does, not], iverb(N,M).
 
 property(N,M) --> adjective(N,M).
 property(s,M) --> [a],noun(s,M).
@@ -121,6 +126,7 @@ command(g(retractall(prolexa:stored_rule(_,C)),"I erased it from my memory")) --
 command(g(retractall(prolexa:stored_rule(_,_)),"I am a blank slate")) --> forgetall. 
 command(g(all_rules(Answer),Answer)) --> kbdump. 
 command(g(all_answers(PN,Answer),Answer)) --> tellmeabout,proper_noun(s,PN).
+
 command(g(explain_question(Q,_,Answer),Answer)) --> [explain,why],sentence1([(Q:-true)]).
 command(g(random_fact(Fact),Fact)) --> getanewfact.
 %command(g(pf(A),A)) --> peterflach. 

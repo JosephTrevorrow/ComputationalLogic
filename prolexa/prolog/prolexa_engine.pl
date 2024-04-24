@@ -134,33 +134,47 @@ add_body_to_rulebase(A,Rs0,[[(A:-true)]|Rs0]).
 
 % 3d argument is accumulator for proofs
 
-% Case for when query is true
-prove_rb(true,_Rulebase,P,P):-!.
 
+%%%% TERRIBLE PROVE_RB CHANGE ATTEMPTING NEGATION FIRST TRY %%%%
+% Case for when query is true
+%prove_rb(true,_Rulebase,P,P):-!.
 % Case for when query is conjunction e.g. 'animal(tweety),can_fly(tweety)', this might return something
 % like 'can_fly(tweety)' if it found the first part as true (conj_append gets rid of the true part)
 % 	in this example the single atom rule would be called. conj_append sees true as the identity, so it combines the rule with true, which is just the rule
+%prove_rb((A,B),Rulebase,P0,P):-!,
+%	find_clause((A:-C),Rule,Rulebase),
+%	conj_append(C,B,D),
+%    prove_rb(D,Rulebase,[p((A,B),Rule)|P0],P).
+% Case for when query is single atom e.g. 'bird(tweety)'
+%prove_rb(A,Rulebase,P0,P):-
+%    find_clause((A:-B),Rule,Rulebase),
+%	prove_rb(B,Rulebase,[p(A,Rule)|P0],P).
+% top-level version that ignores proof
+%prove_rb(Q,RB):-
+%	prove_rb(Q,RB,[],_P).
+
+
+
+
+% 3d argument is accumulator for proofs
+prove_rb(true,_Rulebase,P,P):-!.
 prove_rb((A,B),Rulebase,P0,P):-!,
 	find_clause((A:-C),Rule,Rulebase),
 	conj_append(C,B,D),
     prove_rb(D,Rulebase,[p((A,B),Rule)|P0],P).
-
-% Case for when query is single atom e.g. 'bird(tweety)'
 prove_rb(A,Rulebase,P0,P):-
     find_clause((A:-B),Rule,Rulebase),
 	prove_rb(B,Rulebase,[p(A,Rule)|P0],P).
-
-%%% Extensions to prove_rb
-
-% Negation
-prove_rb(not(A), Rulebase, P0, P):-
-	\+ prove_rb(A, Rulebase, P0, P).
-
+	
+% This is our negation function. It is the same as the above, but with the not function added
+% 	which is the case for when query is single atom e.g. 'bird(tweety)'
+prove_rb(not B, Rulebase, P0, P):- 
+	find_clause((A:-B), Rule, Rulebase),
+	prove_rb(not A, Rulebase, [p(not B, Rule)|P0], P).
 
 % top-level version that ignores proof
 prove_rb(Q,RB):-
 	prove_rb(Q,RB,[],_P).
-
 
 %%% Utilities from nl_shell.pl %%%
 
@@ -191,12 +205,11 @@ rule2message(Rule,Message):-
 	atomics_to_string(Sentence," ",Message).
 
 % collect everything that can be proved about a particular Proper Noun
-all_answers(PN,Answer):-
-	findall(Q,(pred(P,1,_),Q=..[P,PN]),Queries), % collect known predicates from grammar
-	maplist(prove_question,Queries,Msg),
-	delete(Msg,"",Messages),
-	( Messages=[] -> atomic_list_concat(['I know nothing about',PN],' ',Answer)
-	; otherwise -> atomic_list_concat(Messages,". ",Answer)
-	).
-
+all_answers(PN, Answer):-
+    findall(Q, (pred(P,1,_), (Q=..[P, PN])), Queries), % Include negated queries
+    maplist(prove_question, Queries, Msg),
+    delete(Msg, "", Messages),
+    (Messages=[] -> atomic_list_concat(['I know nothing about', PN], ' ', Answer);
+     otherwise -> atomic_list_concat(Messages, ". ", Answer)
+    ).
 
