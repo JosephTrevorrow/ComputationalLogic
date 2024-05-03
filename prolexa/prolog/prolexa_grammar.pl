@@ -23,15 +23,19 @@ pred(mortal,  1,[a/mortal,n/mortal]).
 pred(teacher, 1,[n/teacher]).
 pred(happy,  1,[a/happy]).
 
+pred(humans, 1, [n/human]).
+pred(genuis, 1,[a/genius, n/genius]).
+pred(win, 1,[v/win]).
+pred(prizes, 1,[n/prizes]).
 
 % Extra predicates
-%pred(man,     1,[a/male,n/man]).
-%pred(woman,   1,[a/female,n/woman]).
-%pred(married, 1,[a/married]).
-%pred(bachelor,1,[n/bachelor]).
-%pred(mammal,  1,[n/mammal]).
+pred(man,     1,[a/male,n/man]).
+pred(woman,   1,[a/female,n/woman]).
+pred(married, 1,[a/married]).
+pred(bachelor,1,[n/bachelor]).
+pred(mammal,  1,[n/mammal]).
 pred(bird,    1,[n/bird]).
-%pred(bat,     1,[n/bat]).
+pred(bat,     1,[n/bat]).
 pred(penguin, 1,[n/penguin]).
 pred(sparrow, 1,[n/sparrow]).
 pred(fly,     1,[v/fly]).
@@ -46,6 +50,11 @@ pred2gr(P,1,C/W,X=>Lit):-
 noun_s2p(Noun_s,Noun_p):-
 	( Noun_s=woman -> Noun_p=women
 	; Noun_s=man -> Noun_p=men
+	; Noun_s=bird -> Noun_p=birds
+	; Noun_s=genius -> Noun_p=geniuses
+	; Noun_s=prize -> Noun_p=prizes
+	; Noun_s=human -> Noun_p=humans
+	; Noun_s=bird -> Noun_p=birds
 	; atom_concat(Noun_s,s,Noun_p)
 	).
 
@@ -67,35 +76,40 @@ sword --> [that].
 sentence1(C) --> determiner(N,M1,M2,C),noun(N,M1),verb_phrase(N,M2).
 sentence1([(L:-true)]) --> proper_noun(N,X),verb_phrase(N,X=>L).
 
+
+% EXPAND ON THIS
+% some (as only one determiner that has 2H's), birds (any noun), fly (any verb)
+% TEST: Is this not covered by the above? NO! because we need the sentence to have the value (H1,H2):-True, not just c
+sentence1([(H1,H2):-true]) --> determiner(N,M1,M2,[(H1:-true),(H2:-true)]),noun(N,M1),verb_phrase(N,M2).
+
+% added for negation
 sentence1([(not L:-true)]) --> proper_noun(N,X),verb_phrase(N, not X=>L).  % This is the correct way to do it, as it explicitly states that 
 % 	it is not true
 sentence1([(not H:-B)]) --> determiner(N,M1,M2,[(not H:-B)]),noun(N,M1),verb_phrase(N,not M2).
 
 
-% sentence1([(L:-false)]) --> proper_noun(N,X),neg_verb_phrase(N,X=>L). 
-% This is not right, as Prolog treats negation as failiure (it hasnt explicitly been stated therefore it isnt right)
-% 	
-
-% This not H:-B is the not replacement for sentence1(c) as we cannot just have a negated fact, it must be a rule "joseph is not happy", we cant just say not "happy"
-
-
 verb_phrase(s,M) --> [is],property(s,M).
 verb_phrase(p,M) --> [are],property(p,M).
+verb_phrase(s,M) --> [can], iverb(s,M).
 verb_phrase(N,M) --> iverb(N,M).
+verb_phrase(N,M) --> iverb(N,M), noun(_,M).
 verb_phrase(s,not M) --> [is], [not], property(s,M).
 verb_phrase(p,not M) --> [are], [not], property(p,M).
 verb_phrase(N,not M) --> [does], [not], iverb(N,M).
+verb_phrase(s,not M) --> [can], [not], iverb(s, M).
 
 property(N,M) --> adjective(N,M).
 property(s,M) --> [a],noun(s,M).
 property(p,M) --> noun(p,M).
+%%%% property(s,M) --> [can], adjective(s,M). % COPILOT - This is not needed as it is covered in verb_phrase
+
 
 determiner(s,X=>B,X=>H,[(H:-B)]) --> [every].
 determiner(s,X=>B, not X=>H,[(not H:-B)]) --> [every].
 determiner(p,X=>B,X=>H,[(H:-B)]) --> [all].
 determiner(p,X=>B, not X=>H,[(not H:-B)]) --> [all].
 %determiner(p,X=>B,X=>H,[(H:-B)]) --> [].
-%determiner(p, sk=>H1, sk=>H2, [(H1:-true),(H2 :- true)]) -->[some].
+determiner(p, sk=>H1, sk=>H2, [(H1:-true),(H2 :- true)]) -->[some].
 
 proper_noun(s,tweety) --> [tweety].
 proper_noun(s,peter) --> [peter].
@@ -115,9 +129,8 @@ question1(Q) --> [who],verb_phrase(s,[(not _X=>Q)]).
 question1(Q) --> [is], proper_noun(N,X),property(N,X=>Q).
 question1(Q) --> [is], proper_noun(N,X),property(N,not X=>Q).
 question1(Q) --> [does],proper_noun(_,X),verb_phrase(_,X=>Q).
-%question1((Q1,Q2)) --> [are,some],noun(p,sk=>Q1),
-%					  property(p,sk=>Q2).
-
+question1((Q1,Q2)) --> [are],[some],noun(p,sk=>Q1), property(p,sk=>Q2).
+question1((Q1,Q2)) --> [do],[some],noun(p,sk=>Q1), property(p,sk=>Q2).
 
 %%% commands %%%
 
@@ -136,6 +149,11 @@ command(g(all_rules(Answer),Answer)) --> kbdump.
 command(g(all_answers(PN,Answer),Answer)) --> tellmeabout,proper_noun(s,PN).
 
 command(g(explain_question(Q,_,Answer),Answer)) --> [explain,why],sentence1([(Q:-true)]).
+
+% Added for existential Q
+command(g(explain_question([Q1,Q2],_,Answer),Answer)) --> [explain,why],sentence1([(Q1:-true),(Q2:-true)]).
+
+
 command(g(random_fact(Fact),Fact)) --> getanewfact.
 %command(g(pf(A),A)) --> peterflach. 
 %command(g(iai(A),A)) --> what. 

@@ -168,6 +168,15 @@ add_body_to_rulebase(A,Rs0,[[(A:-true)]|Rs0]).
 %	prove_rb(Q,RB,[],_P).
 
 
+% Added for existential quantification from end of 7.3
+prove_rb((A,B),Rulebase):-!,
+    prove_rb(A,Rulebase),
+    prove_rb(B,Rulebase).
+
+% top-level version that ignores proof
+prove_rb(Q,RB):-
+	prove_rb(Q,RB,[],_P).
+
 % 3d argument is accumulator for proofs
 prove_rb(true,_Rulebase,P,P):-!.
 
@@ -186,9 +195,6 @@ prove_rb(not B, Rulebase, P0, P):-
 	find_clause((A:-B), Rule, Rulebase),
 	prove_rb(not A, Rulebase, [p(not B, Rule)|P0], P).
 
-% top-level version that ignores proof
-prove_rb(Q,RB):-
-	prove_rb(Q,RB,[],_P).
 
 %%% Utilities from nl_shell.pl %%%
 
