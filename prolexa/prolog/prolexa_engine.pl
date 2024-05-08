@@ -86,6 +86,9 @@ prove_question(Query,SessionId,Answer):-
 	; Answer = 'Sorry, I don\'t think this is the case'
 	).	
 
+% TODO: Two argument Query version that can be used for Existential quantification
+
+
 % two-argument version that can be used in maplist/3 (see all_answers/2)
 prove_question(Query,Answer):-
 	findall(R,prolexa:stored_rule(_SessionId,R),Rulebase),
@@ -104,7 +107,7 @@ prove_question(Query,Answer):-
 %%% Extended version of prove_question/3 that constructs a proof tree %%%
 explain_question(Query,SessionId,Answer):-
 	findall(R,prolexa:stored_rule(SessionId,R),Rulebase),
-	( prove_rb(Query,Rulebase,[],Proof) ->
+	( prove_rb(Query,Rulebase, [], Proof) ->
 		maplist(pstep2message,Proof,Msg),
 		phrase(sentence1([(Query:-true)]),L),
 		atomic_list_concat([therefore|L]," ",Last),
@@ -118,6 +121,8 @@ explain_question(Query,SessionId,Answer):-
 		atomic_list_concat(Messages,"; ",Answer)
 	; Answer = 'Sorry, I don\'t think this is the case'
 	).
+
+
 
 % convert proof step to message
 pstep2message(p(_,Rule),Message):-

@@ -26,7 +26,7 @@ pred(happy,  1,[a/happy]).
 pred(humans, 1, [n/human]).
 pred(genuis, 1,[a/genius, n/genius]).
 pred(win, 1,[v/win]).
-pred(prizes, 1,[n/prizes]).
+pred(prize, 1,[n/prize]).
 
 % Extra predicates
 pred(man,     1,[a/male,n/man]).
@@ -47,6 +47,8 @@ pred2gr(P,1,C/W,X=>Lit):-
 	member(C/W,L),
 	Lit=..[P,X].
 
+%% Plurals below:
+
 noun_s2p(Noun_s,Noun_p):-
 	( Noun_s=woman -> Noun_p=women
 	; Noun_s=man -> Noun_p=men
@@ -54,12 +56,12 @@ noun_s2p(Noun_s,Noun_p):-
 	; Noun_s=genius -> Noun_p=geniuses
 	; Noun_s=prize -> Noun_p=prizes
 	; Noun_s=human -> Noun_p=humans
-	; Noun_s=bird -> Noun_p=birds
 	; atom_concat(Noun_s,s,Noun_p)
 	).
 
 verb_p2s(Verb_p,Verb_s):-
 	( Verb_p=fly -> Verb_s=flies
+	; Verb_p=win -> Verb_s=wins
 	; 	atom_concat(Verb_p,s,Verb_s)
 	).
 
@@ -74,12 +76,14 @@ sword --> [that].
 % most of this follows Simply Logical, Chapter 7
 
 sentence1(C) --> determiner(N,M1,M2,C),noun(N,M1),verb_phrase(N,M2).
+sentence1([H:-B]) --> determiner(N,M1,M2,[H:-B]),noun(N,M1),verb_phrase(N,M2).
+
 sentence1([(L:-true)]) --> proper_noun(N,X),verb_phrase(N,X=>L).
 
+% WIP: Adding for Disjunction
+% sentence1([H:-H1;H2]) --> determiner(N,M1,M2,[H1:-true,H2:-true]),noun(N,M1),verb_phrase(N,M1), [or], verb_phrase(N,M2).
 
-% EXPAND ON THIS
-% some (as only one determiner that has 2H's), birds (any noun), fly (any verb)
-% TEST: Is this not covered by the above? NO! because we need the sentence to have the value (H1,H2):-True, not just c
+% Added for existential quantification
 sentence1([(H1,H2):-true]) --> determiner(N,M1,M2,[(H1:-true),(H2:-true)]),noun(N,M1),verb_phrase(N,M2).
 
 % added for negation
@@ -92,11 +96,14 @@ verb_phrase(s,M) --> [is],property(s,M).
 verb_phrase(p,M) --> [are],property(p,M).
 verb_phrase(s,M) --> [can], iverb(s,M).
 verb_phrase(N,M) --> iverb(N,M).
-verb_phrase(N,M) --> iverb(N,M), noun(_,M).
+verb_phrase(N,M) --> iverb(N,M), property(_,M).
+
+%% Negated verb phrases
 verb_phrase(s,not M) --> [is], [not], property(s,M).
 verb_phrase(p,not M) --> [are], [not], property(p,M).
 verb_phrase(N,not M) --> [does], [not], iverb(N,M).
 verb_phrase(s,not M) --> [can], [not], iverb(s, M).
+
 
 property(N,M) --> adjective(N,M).
 property(s,M) --> [a],noun(s,M).
@@ -109,7 +116,13 @@ determiner(s,X=>B, not X=>H,[(not H:-B)]) --> [every].
 determiner(p,X=>B,X=>H,[(H:-B)]) --> [all].
 determiner(p,X=>B, not X=>H,[(not H:-B)]) --> [all].
 %determiner(p,X=>B,X=>H,[(H:-B)]) --> [].
-determiner(p, sk=>H1, sk=>H2, [(H1:-true),(H2 :- true)]) -->[some].
+determiner(p, sk=>H1, sk=>H2, [(H1:-true),(H2:-true)]) -->[some].
+
+% TODO: Test for whether you need to switch for skolem (I don't think you do)
+% determiner(p, sk=>H2, sk=>H1, [(H1:-true),(H2:-true)]) -->[some].
+
+% WIP: Adding for disjunction
+% determiner(p, X=>H1, Y=>H2, [(H1:-true),(H2:-true)]) --> [either].
 
 proper_noun(s,tweety) --> [tweety].
 proper_noun(s,peter) --> [peter].
