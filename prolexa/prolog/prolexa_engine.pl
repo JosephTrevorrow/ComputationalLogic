@@ -104,6 +104,12 @@ prove_question(Query,Answer):-
 	).	
 
 
+% EQ Addition
+explain_question([(Q1), (Q2)],SessionId,Answer):-!,
+	explain_question(Q1, SessionId, Answer),
+	explain_question(Q2, SessionId, Answer).
+
+
 %%% Extended version of prove_question/3 that constructs a proof tree %%%
 explain_question(Query,SessionId,Answer):-
 	findall(R,prolexa:stored_rule(SessionId,R),Rulebase),
@@ -152,38 +158,12 @@ add_body_to_rulebase(A,Rs0,[[(A:-true)]|Rs0]).
 %%% meta-interpreter that constructs proofs %%%
 
 % 3d argument is accumulator for proofs
-
-
-%%%% TERRIBLE PROVE_RB CHANGE ATTEMPTING NEGATION FIRST TRY %%%%
-% Case for when query is true
-%prove_rb(true,_Rulebase,P,P):-!.
-% Case for when query is conjunction e.g. 'animal(tweety),can_fly(tweety)', this might return something
-% like 'can_fly(tweety)' if it found the first part as true (conj_append gets rid of the true part)
-% 	in this example the single atom rule would be called. conj_append sees true as the identity, so it combines the rule with true, which is just the rule
-%prove_rb((A,B),Rulebase,P0,P):-!,
-%	find_clause((A:-C),Rule,Rulebase),
-%	conj_append(C,B,D),
-%    prove_rb(D,Rulebase,[p((A,B),Rule)|P0],P).
-% Case for when query is single atom e.g. 'bird(tweety)'
-%prove_rb(A,Rulebase,P0,P):-
-%    find_clause((A:-B),Rule,Rulebase),
-%	prove_rb(B,Rulebase,[p(A,Rule)|P0],P).
-% top-level version that ignores proof
-%prove_rb(Q,RB):-
-%	prove_rb(Q,RB,[],_P).
-
+prove_rb(true,_Rulebase,P,P):-!.
 
 % Added for existential quantification from end of 7.3
-prove_rb((A,B),Rulebase):-!,
-    prove_rb(A,Rulebase),
-    prove_rb(B,Rulebase).
-
-% top-level version that ignores proof
-prove_rb(Q,RB):-
-	prove_rb(Q,RB,[],_P).
-
-% 3d argument is accumulator for proofs
-prove_rb(true,_Rulebase,P,P):-!.
+prove_rb([(A),(B)], Rulebase, P0, P):-!,
+    prove_rb(A,Rulebase, P0, P),
+    prove_rb(B,Rulebase, P0, P).
 
 prove_rb((A,B),Rulebase,P0,P):-!,
 	find_clause((A:-C),Rule,Rulebase),
@@ -193,13 +173,16 @@ prove_rb((A,B),Rulebase,P0,P):-!,
 prove_rb(A,Rulebase,P0,P):-
     find_clause((A:-B),Rule,Rulebase),
 	prove_rb(B,Rulebase,[p(A,Rule)|P0],P).
-	
+
 % This is our negation function. It is the same as the above, but with the not function added
 % 	which is the case for when query is single atom e.g. 'bird(tweety)'
 prove_rb(not B, Rulebase, P0, P):- 
 	find_clause((A:-B), Rule, Rulebase),
 	prove_rb(not A, Rulebase, [p(not B, Rule)|P0], P).
 
+% top-level version that ignores proof
+prove_rb(Q,RB):-
+	prove_rb(Q,RB,[],_P).
 
 %%% Utilities from nl_shell.pl %%%
 

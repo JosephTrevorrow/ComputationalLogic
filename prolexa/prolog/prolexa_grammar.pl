@@ -23,8 +23,8 @@ pred(mortal,  1,[a/mortal,n/mortal]).
 pred(teacher, 1,[n/teacher]).
 pred(happy,  1,[a/happy]).
 
-pred(humans, 1, [n/human]).
-pred(genuis, 1,[a/genius, n/genius]).
+pred(human, 1, [n/human]).
+pred(genuis, 1,[n/genius]).
 pred(win, 1,[v/win]).
 pred(prize, 1,[n/prize]).
 
@@ -33,6 +33,7 @@ pred(man,     1,[a/male,n/man]).
 pred(woman,   1,[a/female,n/woman]).
 pred(married, 1,[a/married]).
 pred(bachelor,1,[n/bachelor]).
+
 pred(mammal,  1,[n/mammal]).
 pred(bird,    1,[n/bird]).
 pred(bat,     1,[n/bat]).
@@ -54,14 +55,12 @@ noun_s2p(Noun_s,Noun_p):-
 	; Noun_s=man -> Noun_p=men
 	; Noun_s=bird -> Noun_p=birds
 	; Noun_s=genius -> Noun_p=geniuses
-	; Noun_s=prize -> Noun_p=prizes
 	; Noun_s=human -> Noun_p=humans
 	; atom_concat(Noun_s,s,Noun_p)
 	).
 
 verb_p2s(Verb_p,Verb_s):-
 	( Verb_p=fly -> Verb_s=flies
-	; Verb_p=win -> Verb_s=wins
 	; 	atom_concat(Verb_p,s,Verb_s)
 	).
 
@@ -74,7 +73,8 @@ sword --> [].
 sword --> [that]. 
 
 % most of this follows Simply Logical, Chapter 7
-
+% Added for existential quantification
+sentence1([(H1:-true),(H2:-true)]) --> determiner(N,M1,M2,[(H1:-true),(H2:-true)]),noun(N,M1),verb_phrase(N,M2).
 sentence1(C) --> determiner(N,M1,M2,C),noun(N,M1),verb_phrase(N,M2).
 sentence1([H:-B]) --> determiner(N,M1,M2,[H:-B]),noun(N,M1),verb_phrase(N,M2).
 
@@ -83,8 +83,7 @@ sentence1([(L:-true)]) --> proper_noun(N,X),verb_phrase(N,X=>L).
 % WIP: Adding for Disjunction
 % sentence1([H:-H1;H2]) --> determiner(N,M1,M2,[H1:-true,H2:-true]),noun(N,M1),verb_phrase(N,M1), [or], verb_phrase(N,M2).
 
-% Added for existential quantification
-sentence1([(H1,H2):-true]) --> determiner(N,M1,M2,[(H1:-true),(H2:-true)]),noun(N,M1),verb_phrase(N,M2).
+
 
 % added for negation
 sentence1([(not L:-true)]) --> proper_noun(N,X),verb_phrase(N, not X=>L).  % This is the correct way to do it, as it explicitly states that 
@@ -96,7 +95,9 @@ verb_phrase(s,M) --> [is],property(s,M).
 verb_phrase(p,M) --> [are],property(p,M).
 verb_phrase(s,M) --> [can], iverb(s,M).
 verb_phrase(N,M) --> iverb(N,M).
-verb_phrase(N,M) --> iverb(N,M), property(_,M).
+
+% Added for existential quantification
+%verb_phrase(N,M) --> iverb(N,M), property(_,M).
 
 %% Negated verb phrases
 verb_phrase(s,not M) --> [is], [not], property(s,M).
@@ -142,8 +143,8 @@ question1(Q) --> [who],verb_phrase(s,[(not _X=>Q)]).
 question1(Q) --> [is], proper_noun(N,X),property(N,X=>Q).
 question1(Q) --> [is], proper_noun(N,X),property(N,not X=>Q).
 question1(Q) --> [does],proper_noun(_,X),verb_phrase(_,X=>Q).
-question1((Q1,Q2)) --> [are],[some],noun(p,sk=>Q1), property(p,sk=>Q2).
-question1((Q1,Q2)) --> [do],[some],noun(p,sk=>Q1), property(p,sk=>Q2).
+question1([(Q1),(Q2)]) --> [are],[some],noun(p,sk=>Q1), property(p,sk=>Q2).
+question1([(Q1),(Q2)]) --> [do],[some],noun(p,sk=>Q1), property(p,sk=>Q2).
 
 %%% commands %%%
 
@@ -161,10 +162,11 @@ command(g(retractall(prolexa:stored_rule(_,_)),"I am a blank slate")) --> forget
 command(g(all_rules(Answer),Answer)) --> kbdump. 
 command(g(all_answers(PN,Answer),Answer)) --> tellmeabout,proper_noun(s,PN).
 
-command(g(explain_question(Q,_,Answer),Answer)) --> [explain,why],sentence1([(Q:-true)]).
-
 % Added for existential Q
-command(g(explain_question([Q1,Q2],_,Answer),Answer)) --> [explain,why],sentence1([(Q1:-true),(Q2:-true)]).
+command(g(explain_question(Q,_,Answer),Answer)) --> [explain],[why],sentence1([(Q:-true)]).
+command(g(explain_question(([(Q1),(Q2)]),_,Answer),Answer)) --> [explain],[why],sentence1([(Q1:-true),(Q2:-true)]).
+
+
 
 
 command(g(random_fact(Fact),Fact)) --> getanewfact.
