@@ -86,11 +86,6 @@ prove_question(Query,SessionId,Answer):-
 	; Answer = 'Sorry, I don\'t think this is the case'
 	).	
 
-% TODO: Two argument Query version that can be used for Existential quantification
-%prove_question((Q1,Q2), Answer):-
-%	prove_question(Q1, Answer1),
-%	prove_question(Q2, Answer2),
-%	atomic_list_concat([Answer1, Answer2], " ", Answer). % Concatenate the two answers with a space in between
 
 % two-argument version that can be used in maplist/3 (see all_answers/2)
 prove_question(Query,Answer):-
@@ -107,11 +102,6 @@ prove_question(Query,Answer):-
 	).	
 
 
-% EQ Addition- IT NEEDS TO BE [] NOT (), LOOK AT HOW IT IS BEING PARSED IN!
-explain_question([Q1,Q2],SessionId,Answer):-
-	explain_question(Q1, SessionId, Answer1),
-	explain_question(Q2, Answer1, Answer2),
-	atomic_list_concat([Answer1, Answer2], " ", Answer). % Concatenate the two answers with a space in between
 
 
 %%% Extended version of prove_question/3 that constructs a proof tree %%%

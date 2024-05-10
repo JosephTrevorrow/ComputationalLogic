@@ -64,7 +64,6 @@ verb_p2s(Verb_p,Verb_s):-
 	; 	atom_concat(Verb_p,s,Verb_s)
 	).
 
-
 %%% sentences %%%
 
 sentence(C) --> sword,sentence1(C).
@@ -82,8 +81,6 @@ sentence1([(L:-true)]) --> proper_noun(N,X),verb_phrase(N,X=>L).
 
 % WIP: Adding for Disjunction
 % sentence1([H:-H1;H2]) --> determiner(N,M1,M2,[H1:-true,H2:-true]),noun(N,M1),verb_phrase(N,M1), [or], verb_phrase(N,M2).
-
-
 
 % added for negation
 sentence1([(not L:-true)]) --> proper_noun(N,X),verb_phrase(N, not X=>L).  % This is the correct way to do it, as it explicitly states that 
@@ -109,7 +106,6 @@ verb_phrase(s,not M) --> [can], [not], iverb(s, M).
 property(N,M) --> adjective(N,M).
 property(s,M) --> [a],noun(s,M).
 property(p,M) --> noun(p,M).
-%%%% property(s,M) --> [can], adjective(s,M). % COPILOT - This is not needed as it is covered in verb_phrase
 
 
 determiner(s,X=>B,X=>H,[(H:-B)]) --> [every].
@@ -144,7 +140,7 @@ question1(Q) --> [is], proper_noun(N,X),property(N,X=>Q).
 question1(Q) --> [is], proper_noun(N,X),property(N,not X=>Q).
 question1(Q) --> [does],proper_noun(_,X),verb_phrase(_,X=>Q).
 question1((Q1,Q2)) --> [are],[some],noun(p,sk=>Q1), property(p,sk=>Q2).
-question1([(Q1),(Q2)]) --> [do],[some],noun(p,sk=>Q1), property(p,sk=>Q2).
+question1((Q1,Q2)) --> [do],[some],noun(p,sk=>Q1), verb_phrase(p,sk=>Q2).
 
 %%% commands %%%
 
