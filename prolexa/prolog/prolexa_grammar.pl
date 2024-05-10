@@ -143,7 +143,7 @@ question1(Q) --> [who],verb_phrase(s,[(not _X=>Q)]).
 question1(Q) --> [is], proper_noun(N,X),property(N,X=>Q).
 question1(Q) --> [is], proper_noun(N,X),property(N,not X=>Q).
 question1(Q) --> [does],proper_noun(_,X),verb_phrase(_,X=>Q).
-question1([(Q1),(Q2)]) --> [are],[some],noun(p,sk=>Q1), property(p,sk=>Q2).
+question1((Q1,Q2)) --> [are],[some],noun(p,sk=>Q1), property(p,sk=>Q2).
 question1([(Q1),(Q2)]) --> [do],[some],noun(p,sk=>Q1), property(p,sk=>Q2).
 
 %%% commands %%%
@@ -165,8 +165,6 @@ command(g(all_answers(PN,Answer),Answer)) --> tellmeabout,proper_noun(s,PN).
 % Added for existential Q
 command(g(explain_question(Q,_,Answer),Answer)) --> [explain],[why],sentence1([(Q:-true)]).
 command(g(explain_question((Q1,Q2),_,Answer),Answer)) --> [explain],[why],sentence1([(Q1:-true),(Q2:-true)]).
-
-
 
 
 command(g(random_fact(Fact),Fact)) --> getanewfact.

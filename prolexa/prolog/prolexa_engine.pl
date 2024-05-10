@@ -87,10 +87,10 @@ prove_question(Query,SessionId,Answer):-
 	).	
 
 % TODO: Two argument Query version that can be used for Existential quantification
-prove_question((Q1,Q2), Answer):-
-	prove_question(Q1, Answer1),
-	prove_question(Q2, Answer2),
-	atomic_list_concat([Answer1, Answer2], " ", Answer). % Concatenate the two answers with a space in between
+%prove_question((Q1,Q2), Answer):-
+%	prove_question(Q1, Answer1),
+%	prove_question(Q2, Answer2),
+%	atomic_list_concat([Answer1, Answer2], " ", Answer). % Concatenate the two answers with a space in between
 
 % two-argument version that can be used in maplist/3 (see all_answers/2)
 prove_question(Query,Answer):-
@@ -165,9 +165,9 @@ add_body_to_rulebase(A,Rs0,[[(A:-true)]|Rs0]).
 prove_rb(true,_Rulebase,P,P):-!.
 
 % Added for existential quantification from end of 7.3
-%prove_rb((A,B), Rulebase, P0, P):-!,
-%    prove_rb(A,Rulebase, P0, P),
-%    prove_rb(B,Rulebase, P0, P).
+prove_rb((A,B), Rulebase, P0, P):-!,
+    prove_rb(A,Rulebase, P0, P1),
+    prove_rb(B,Rulebase, P1, P).
 
 prove_rb((A,B),Rulebase,P0,P):-!,
 	find_clause((A:-C),Rule,Rulebase),
@@ -190,6 +190,9 @@ prove_rb(Q,RB):-
 
 %%% Utilities from nl_shell.pl %%%
 
+% See 7.3 - Copying elements of a rule, so that sk's are not only 1 undecipherable rule
+find_clause(Clause,Rule, [Rule|_Rules]):-
+	copy_element(Clause, Rule).
 find_clause(Clause,Rule,[Rule|_Rules]):-
 	copy_term(Rule,[Clause]).	% do not instantiate Rule
 find_clause(Clause,Rule,[_Rule|Rules]):-
