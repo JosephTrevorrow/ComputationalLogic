@@ -74,6 +74,7 @@ sword --> [that].
 % most of this follows Simply Logical, Chapter 7
 % Added for existential quantification
 sentence1([([H1,H2]:-true)]) --> determiner(N,M1,M2,[(H1:-true),(H2:-true)]),noun(N,M1),verb_phrase(N,M2).
+
 sentence1(C) --> determiner(N,M1,M2,C),noun(N,M1),verb_phrase(N,M2).
 sentence1([H:-B]) --> determiner(N,M1,M2,[H:-B]),noun(N,M1),verb_phrase(N,M2).
 
@@ -160,8 +161,7 @@ command(g(all_answers(PN,Answer),Answer)) --> tellmeabout,proper_noun(s,PN).
 
 % Added for existential Q
 command(g(explain_question(Q,_,Answer),Answer)) --> [explain],[why],sentence1([(Q:-true)]).
-command(g(explain_question((Q1,Q2),_,Answer),Answer)) --> [explain],[why],sentence1([(Q1:-true),(Q2:-true)]).
-
+command(g(explain_question((Q1,Q2),_,Answer),Answer)) --> [explain],[why],sentence1([([Q1,Q2]:-true)]).
 
 command(g(random_fact(Fact),Fact)) --> getanewfact.
 %command(g(pf(A),A)) --> peterflach. 

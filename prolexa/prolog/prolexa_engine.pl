@@ -102,8 +102,6 @@ prove_question(Query,Answer):-
 	).	
 
 
-
-
 %%% Extended version of prove_question/3 that constructs a proof tree %%%
 explain_question(Query,SessionId,Answer):-
 	findall(R,prolexa:stored_rule(SessionId,R),Rulebase),
@@ -155,7 +153,7 @@ add_body_to_rulebase(A,Rs0,[[(A:-true)]|Rs0]).
 prove_rb(true,_Rulebase,P,P):-!.
 
 % Added for existential quantification from end of 7.3
-prove_rb((A,B), Rulebase, P0, P):-!,
+prove_rb([A,B], Rulebase, P0, P):-!,
     prove_rb(A,Rulebase, P0, P1),
     prove_rb(B,Rulebase, P1, P).
 

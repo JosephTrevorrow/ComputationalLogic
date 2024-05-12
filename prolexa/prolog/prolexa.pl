@@ -22,8 +22,9 @@
 stored_rule(1,[(mortal(X):-human(X))]).
 stored_rule(1,[(human(peter):-true)]).
 %%% extra stored rules!
-stored_rule(1,[(human(joseph):-true)]).
-stored_rule(1,[(human(sk):-true),(happy(sk):-true)]).
+stored_rule(1,[(human(X):-true),(happy(X):-true)]).
+stored_rule(1,[(human(X):-true),(bird(X):-true)]).
+stored_rule(1,[(fly(X):-bird(X))]).
 
 
 %%% Prolexa Command Line Interface %%%
