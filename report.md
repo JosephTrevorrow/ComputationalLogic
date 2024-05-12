@@ -37,25 +37,31 @@ sentence1([(not L:-true)]) --> proper_noun(N,X),verb_phrase(N, not X=>L).
 sentence1([(not H:-B)]) --> determiner(N,M1,M2,[(not H: B)]),noun(N,M1),verb_phrase(N,not M2).
 ```
 
-This is not enough, and each predicate that makes up a sentence must also be modified.
+This is not enough, and each predicate that makes up a sentence must also be modified. For example:
 
 ```prolog
 question1(Q) --> [who],verb_phrase(s,_X=>Q).
 question1(Q) --> [who],verb_phrase(s,[(not _X=>Q)]).
 question1(Q) --> [is], proper_noun(N,X),property(N,X=>Q).
 question1(Q) --> [is], proper_noun(N,X),property(N,not X=>Q).
+
+%% Negated verb phrases
+verb_phrase(s,not M) --> [is], [not], property(s,M).
+verb_phrase(p,not M) --> [are], [not], property(p,M).
+verb_phrase(N,not M) --> [does], [not], iverb(N,M).
+verb_phrase(s,not M) --> [can], [not], iverb(s, M).
 ```
 
 For Prolexa to reason about negation we need to add an extra case to `prove_rb` that uses the `not` operator to automatically give negation to a predicate.
 
 ```prolog
-% This is our negation function. It is the same as the above, but with the not function added which is the case for when query is single atom e.g. 'bird(tweety)'
+% Same as the above cases, but with the not function added which is the case for when query is single atom e.g. 'bird(tweety)'
 prove_rb(not B, Rulebase, P0, P):- 
     find_clause((A:-B), Rule, Rulebase),
     prove_rb(not A, Rulebase, [p(not B, Rule)|P0], P).
 ```
 
-Added negation is also needed in reasoning to prove questions, so that the engine can reason about negative queries in questions:
+Added negation is also needed in reasoning to prove questions, so that the engine can reason about negative queries in questions. The same is done to `explain_question`:
 
 ```prolog
 % two-argument version that can be used in maplist/3 (see all_answers/2)
