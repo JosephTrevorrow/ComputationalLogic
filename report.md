@@ -114,42 +114,23 @@ PLX: every human is mortal. peter is human. joseph is human. every teacher is ha
 + Modify the engine so that it can be stored as a rule in a similar format as "every" and "all" logically
 + Modify `prove_rb` to allow for reasoning about rules that follow the "some" representation
 
-Included with the Prolexa Grammar in the original repository is the below Skolemisation function. It represents a rule `p`, and that if two individual rules are true, then that response is correctly matched. Skolemisation is a function of predicate logic where two new predicates are created to eliminate logical $\exists$ from (See Flach and Sokol, sections 11.1, 2.5). The process converts all variables to constants, and all new constants to new functors. Because our rule will only parse variables (as that is all Prolexa can identify), the function simply converts the two to be a list of two true facts within the knowledge store.
+Included with the Prolexa Grammar in the original repository is the below Skolemisation function. It represents a rule `p`, and that if two individual rules are true, then that response is correctly matched. Skolemisation is a function of predicate logic where two new predicates are created to eliminate logical $\exists$ from (See Flach and Sokol, sections 11.1, 2.5). The process converts all variables to constants, and all new constants to new functors. Because the rule will only parse variables (as that is all Prolexa can identify), the function simply converts the two to be a list of two true facts within the knowledge store.
 
 ```prolog
 determiner(p, sk=>H1, sk=>H2, [(H1:-true),(H2 :- true)]) -->[some].
 ```
 
-Limitations of this method is that it cannot parse "Some geniuses win prizes", only some geniuses win. To allow this, `property` and `verb_phrase` can be modified, so that the stored rule results in the property, rather than the verb being treated as the truth ("geniuses win prizes" translates to `[(genius:-true),(prizes:-true)]`). However, this would result in the loss of the verb, so, it could be possible to treat "win prizes" as a predicate in itself, however this would be a lazy fix, and would result in prizes not being a property in itself.
+Limitations of this method is that it cannot parse "Some geniuses win prizes", only some geniuses win. To allow this, `property` and `verb_phrase` can be modified, so that the stored rule results in the property, rather than the verb being treated as the truth ("geniuses win prizes" translates to `[(genius:-true),(prizes:-true)]`). However, this would result in the loss of the verb, so, it could be possible to treat "win prizes" as a predicate in itself, however this would be a lazy fix and would result in prizes not being a property in itself. A better fix would be to use transitive verbs, rather than just generic and independent verbs. This would require storing the verb as well within the rule, which would be possible but reqiure an overhaul of how Prolexa understands rules.
 
-I also initially made the following changes to parsing, this includes modifying sentence1 to fit with the new rule determiner un-commented from the original repository.
+I also made a basic change to sentence parsing, so that hte new determiner rule is accounted for.
 
 ```prolog
 sentence1([(H1,H2):-true]) --> determiner(N,M1,M2,[(H1:-true),(H2:-true)]),noun(N,M1),verb_phrase(N,M2).
-verb_phrase(N,M) --> iverb(N,M), property(_,M).
 ```
 
-However, this is incorrect, and results in the rule becoming recursive i.e.
-
+However, some issues arose,  which led to existential quantification (EQ) rules being repeated 4 times within the rule base.
 ```txt
 USR: some huamns are geniuses
-PLX: I will remember some humans are geniuses
-USR: spill the beans
-PLX: every human is mortal. peter is human. joseph is human. some humans are geniuses. some humans are geniuses. some humans are geniuses. some humans are geniuses.
-```
-
-To fix this, I remove the modification of `sentence1`, and the verb phrase, as they are both redundant. This reduces the scale of the problem.
-
-```txt
-USR: some huamns are geniuses
-PLX: I will remember some humans are geniuses
-USR: spill the beans
-PLX: every human is mortal. peter is human. joseph is human. some humans are geniuses. some humans are geniuses.
-```
-
-On closer inspection
-
-```txt
 * utterance(some humans are geniuses)
 * rule([([human(sk),genuis(sk)]:-true)])
 * answer(I will remember that some humans are geniuses)
@@ -160,8 +141,12 @@ On closer inspection
 * rule([(human(sk):-true),(genuis(sk):-true)])
 * answer(I will remember that some humans are geniuses)
 * answer(I heard you say,  some humans are geniuses , could you rephrase that please?)
+PLX: I will remember some humans are geniuses
+USR: spill the beans
+PLX: every human is mortal. peter is human. joseph is human. some humans are geniuses. some humans are geniuses. some humans are geniuses. some humans are geniuses.
 ```
 
+On closer inspection, each rule is different, the first and second accounts for the list, and the new determiner. The third and fourth account for when both are true for the other definition of the rule.  
 
 For Reasoning, `question1` must be modified to accept "do some" and "are some", rather than just using a singular Q. The process of skolemisation is such that to explain a question, we must prove that both can be true at the same time ("some humans are geniuses" translates to `[(humans:-true),(genius:-true)]` as one rule being a list of 2 rules) to prove this, the question should parse in both 
 
