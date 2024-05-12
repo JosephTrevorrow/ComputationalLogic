@@ -73,8 +73,9 @@ prove_question(Query,Answer):-
 	).	
 ```
 
-### Testing
-*Test 1:*
+### Negation Testing
+
+*Test 1: basic understanding*
 
 ```txt
 USR: Joseph is not happy
@@ -85,7 +86,7 @@ USR: explain why joseph is not happy
 PLX: joseph is not happy; therefore joseph is not happy
 ```
 
-*Test 2:*
+*Test 2: deeper reasoning*
 
 ```txt
 USR: Every teacher is happy
@@ -140,22 +141,21 @@ USR: spill the beans
 PLX: every human is mortal. peter is human. joseph is human. some humans are geniuses. some humans are geniuses.
 ```
 
-I hypothesise that this repetition occurs purely at the parsing step, and doesn't store multiple rules
+On closer inspection
 
 ```txt
-USR: some humans are happy
-*** utterance(some humans are happy)
-*** rule([([human(sk),happy(sk)]:-true)])
-*** answer(I will remember that some humans are happy)
+* utterance(some humans are geniuses)
+* rule([([human(sk),genuis(sk)]:-true)])
+* answer(I will remember that some humans are geniuses)
+* rule([([human(sk),genuis(sk)]:-true)])
+* answer(I will remember that some humans are geniuses)
+* rule([(human(sk):-true),(genuis(sk):-true)])
+* answer(I will remember that some humans are geniuses)
+* rule([(human(sk):-true),(genuis(sk):-true)])
+* answer(I will remember that some humans are geniuses)
+* answer(I heard you say,  some humans are geniuses , could you rephrase that please?)
 ```
 
-contrasting:
-```
-USR: explain why some humans are happy
-*** utterance(explain why some humans are happy)
-*** goal(explain_question([human(sk),happy(sk)],_40548,_40290))
-*** answer(some humans are happy; therefore some humans are happy)
-```
 
 For Reasoning, `question1` must be modified to accept "do some" and "are some", rather than just using a singular Q. The process of skolemisation is such that to explain a question, we must prove that both can be true at the same time ("some humans are geniuses" translates to `[(humans:-true),(genius:-true)]` as one rule being a list of 2 rules) to prove this, the question should parse in both 
 
@@ -185,7 +185,9 @@ find_clause(Clause,Rule, [Rule|_Rules]):-
 
 Unlike negation, explanation and proving functions that call `prove_rb` are not modified. this is because even though the query is abnormal, all reasoning about the list is done within `prove_rb` as described above.
 
-### Testing
+### EQ Testing
+
+*Test 1: basic understanding with stored rules*
 
 ```txt
 % Note: in this case prolexa.pl: stored_rule(1,[(human(sk):-true),(happy(sk):-true)]).
@@ -194,6 +196,8 @@ PLX: some humans are happy
 USR: explain why some humans are happy
 PLX: some humans are happy; therefore some humans are happy
 ```
+
+*Test 2: basic understanding with input rules*
 
 ```txt
 USR: are some humans happy
@@ -206,4 +210,68 @@ USR: are some humans happy
 PLX: some humans are happy
 USR: explain why some humans are happy
 PLX: some humans are happy; therefore some humans are happy
+```
+
+**Note: Unformatted output is shown, as repeated rules are needed for full understanding of limitations**
+
+*Test 3: deeper reasoning with stored rules*
+
+```txt
+Hello! I'm ProlexaPlus! Tell me anything, ask me anything.
+> spill the beans
+* utterance(spill the beans)
+* goal(all_rules(_52810))
+* answer(every human is mortal. peter is human. some humans are happy. some humans are birds. every bird can flies)
+every human is mortal. peter is human. some humans are happy. some humans are birds. every bird can flies
+> do some humans fly
+* utterance(do some humans fly)
+* query((human(sk),fly(sk)))
+* answer(some humans fly)
+b'some humans fly'
+> explain why some humans fly
+* utterance(explain why some humans fly)
+* goal(explain_question([human(sk),fly(sk)],_11928,_11700))
+* answer(some humans are birds; every bird can flies; some humans are happy; therefore some humans fly)
+some humans are birds; every bird can flies; some humans are happy; therefore some humans fly
+```
+
+*Test 4: deeper reasoning with input rules* 
+
+```txt
+Hello! I'm ProlexaPlus! Tell me anything, ask me anything.
+> every genius wins
+* utterance(every genius wins)
+* rule([(win(_54408):-genuis(_54408))])
+* answer(I will remember that every genius wins)
+* rule([(win(_56216):-genuis(_56216))])
+* answer(I already knew that every genius wins)
+* answer(I heard you say,  every genius wins , could you rephrase that please?)
+I will remember that every genius wins
+> some humans are geniuses
+* utterance(some humans are geniuses)
+* rule([([human(sk),genuis(sk)]:-true)])
+* answer(I will remember that some humans are geniuses)
+* rule([([human(sk),genuis(sk)]:-true)])
+* answer(I will remember that some humans are geniuses)
+* rule([(human(sk):-true),(genuis(sk):-true)])
+* answer(I will remember that some humans are geniuses)
+* rule([(human(sk):-true),(genuis(sk):-true)])
+* answer(I will remember that some humans are geniuses)
+* answer(I heard you say,  some humans are geniuses , could you rephrase that please?)
+I will remember that some humans are geniuses
+> do some humans win
+* utterance(do some humans win)
+* query((human(sk),win(sk)))
+* answer(some humans win)
+b'some humans win'
+> explain why some humans win
+* utterance(explain why some humans win)
+* goal(explain_question([human(sk),win(sk)],_20740,_20512))
+* answer(some humans are geniuses; every genius can wins; some humans are happy; therefore some humans win)
+some humans are geniuses; every genius can wins; some humans are happy; therefore some humans win
+> spill the beans
+* utterance(spill the beans)
+* goal(all_rules(_29318))
+* answer(every human is mortal. peter is human. some humans are happy. some humans are birds. every bird can flies. every genius can wins. some humans are geniuses. some humans are geniuses. some humans are geniuses. some humans are geniuses)
+every human is mortal. peter is human. some humans are happy. some humans are birds. every bird can flies. every genius can wins. some humans are geniuses. some humans are geniuses. some humans are geniuses. some humans are geniuses
 ```
