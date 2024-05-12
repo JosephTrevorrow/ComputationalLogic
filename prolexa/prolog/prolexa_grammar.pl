@@ -152,7 +152,7 @@ question1((Q1,Q2)) --> [do],[some],noun(p,sk=>Q1), verb_phrase(p,sk=>Q2).
 % which will generate a random fact as output for prolexa.
 
 command(g(retractall(prolexa:stored_rule(_,C)),"I erased it from my memory")) --> forget,sentence(C). 
-command(g(retractall(prolexa:stored_rule(,)),"I am a blank slate")) --> forgetall. 
+command(g(retractall(prolexa:stored_rule(_,_)),"I am a blank slate")) --> forgetall. 
 command(g(all_rules(Answer),Answer)) --> kbdump. 
 command(g(all_answers(PN,Answer),Answer)) --> tellmeabout,proper_noun(s,PN).
 
