@@ -3,6 +3,8 @@
 *Abstract* \
 Prolexa, and its sibling Prolexa Plus, use Python and Prolog to understand natural language. Utilising Simply Logical by Flach and Sokol as well as Prolexa's  Definite Clause Grammar and  Meta-Interpreter provided, I extend Prolexa Plus to understand concepts of Negation and Existential Quanitification.
 
+Accompanied by this report is a `assignment_notebook.ipynb`, that contains runnable test cases, and an interactive shell for this project.
+
 ## Background
 
 ### The Definite Clause Grammar
@@ -146,7 +148,7 @@ USR: spill the beans
 PLX: every human is mortal. peter is human. joseph is human. some humans are geniuses. some humans are geniuses. some humans are geniuses. some humans are geniuses.
 ```
 
-On closer inspection, each rule is different, the first and second accounts for the list, and the new determiner. The third and fourth account for when both are true for the other definition of the rule.  
+On closer inspection, each rule is different, the first and second accounts for the list, and the new determiner. The third and fourth account for when both are true for the other definition of the rule. However, by storing these rules no reasoning is effected and therefore no changes will be made.
 
 For Reasoning, `question1` must be modified to accept "do some" and "are some", rather than just using a singular Q. The process of skolemisation is such that to explain a question, we must prove that both can be true at the same time ("some humans are geniuses" translates to `[(humans:-true),(genius:-true)]` as one rule being a list of 2 rules) to prove this, the question should parse in both 
 
@@ -171,7 +173,7 @@ To complete the reasoning, the two rules must then be able to be picked from the
 ```prolog
 % See 7.3 - Copying elements of a rule, so that sk's are not only 1 undecipherable list
 find_clause(Clause,Rule, [Rule|_Rules]):-
-	  copy_element(Clause, Rule).
+	copy_element(Clause, Rule).
 ```
 
 Unlike negation, explanation and proving functions that call `prove_rb` are not modified. this is because even though the query is abnormal, all reasoning about the list is done within `prove_rb` as described above.
