@@ -32,7 +32,7 @@ There are two key different modifications to be completed to allow for negation.
 
 The use of `false` would be technically faster for individual queries, but as Prolog uses the closed world assumption it cannot be applicable to Prolexa: The universe is always expanding as the user inputs new data. By stating something as explicitly false, each time a new interaction with a false fact is parsed, an unnecessary amount of computation would need to be used to add every new negative fact. For this reason, negation as failure must be used in the form of `not` which is a predicate that will only say something is false if it fails to prove it. This implicit representation of falsity therefore makes more sense for this particular use case.
 
-The DCG is modified such that it can understand negated sentences:
+The DCG is modified such that it can understand negated sentences in the same cases as non-negated ones:
 
 ```prolog
 sentence1([(not L:-true)]) --> proper_noun(N,X),verb_phrase(N, not X=>L).
