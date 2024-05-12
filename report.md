@@ -124,13 +124,14 @@ determiner(p, sk=>H1, sk=>H2, [(H1:-true),(H2 :- true)]) -->[some].
 
 Limitations of this method is that it cannot parse "Some geniuses win prizes", only some geniuses win. To allow this, `property` and `verb_phrase` can be modified, so that the stored rule results in the property, rather than the verb being treated as the truth ("geniuses win prizes" translates to `[(genius:-true),(prizes:-true)]`). However, this would result in the loss of the verb, so, it could be possible to treat "win prizes" as a predicate in itself, however this would be a lazy fix and would result in prizes not being a property in itself. A better fix would be to use transitive verbs, rather than just generic and independent verbs. This would require storing the verb as well within the rule, which would be possible but reqiure an overhaul of how Prolexa understands rules.
 
-I also made a basic change to sentence parsing, so that hte new determiner rule is accounted for.
+I also made a basic change to sentence parsing, so that the new determiner rule is accounted for. The rule here is not the same as the deteminer, as is with other rules, because the query is with the individual query (H1,H2) being true. If `sentence1` was formatted as `sentence1([(H1:-true),(H2:-true)])` this would not be understood, as there is no query being proven, there is a list of two seperate queries.
 
 ```prolog
 sentence1([(H1,H2):-true]) --> determiner(N,M1,M2,[(H1:-true),(H2:-true)]),noun(N,M1),verb_phrase(N,M2).
 ```
 
 However, some issues arose,  which led to existential quantification (EQ) rules being repeated 4 times within the rule base.
+
 ```txt
 USR: some huamns are geniuses
 * utterance(some humans are geniuses)
@@ -159,7 +160,7 @@ question1((Q1,Q2)) --> [do],[some],noun(p,sk=>Q1), verb_phrase(p,sk=>Q2).
 command(g(explain_question([Q1,Q2],_,Answer),Answer)) -->[explain,why],sentence1([(Q1:-true),(Q2:-true)]).
 ```
 
-EQ reasoning is described in Simply Logical (section 7.3). The meta-interpreter is modified such that `prove_rb` splits the list of two clauses into two singulars, and runs `prove_rb` again on each. Importantly to allow for explanations, Prolexa's `prove_rb` function uses `P0` and `P` to ad rules to an accumulator to be used with `explain_question`. Therefore, the EQ case must account for the fact that the final accumulator for clause `A` must be appended to the start of the accumulator for clause `B`.
+EQ reasoning is described in Simply Logical (section 7.3). The meta-interpreter is modified such that `prove_rb` splits the list of two clauses into two singulars, and runs `prove_rb` again on each. Importantly to allow for explanations, Prolexa's `prove_rb` function uses `P0` and `P` to add rules to an accumulator to be used with `explain_question`. Therefore, the EQ case must account for the fact that the final accumulator for clause `A` must be appended to the start of the accumulator for clause `B`.
 
 ```prolog
 % Added for existential quantification from end of 7.3
