@@ -116,9 +116,6 @@ determiner(p,X=>B, not X=>H,[(not H:-B)]) --> [all].
 %determiner(p,X=>B,X=>H,[(H:-B)]) --> [].
 determiner(p, sk=>H1, sk=>H2, [(H1:-true),(H2:-true)]) -->[some].
 
-% TODO: Test for whether you need to switch for skolem (I don't think you do)
-% determiner(p, sk=>H2, sk=>H1, [(H1:-true),(H2:-true)]) -->[some].
-
 % WIP: Adding for disjunction
 % determiner(p, X=>H1, Y=>H2, [(H1:-true),(H2:-true)]) --> [either].
 
@@ -155,7 +152,7 @@ question1((Q1,Q2)) --> [do],[some],noun(p,sk=>Q1), verb_phrase(p,sk=>Q2).
 % which will generate a random fact as output for prolexa.
 
 command(g(retractall(prolexa:stored_rule(_,C)),"I erased it from my memory")) --> forget,sentence(C). 
-command(g(retractall(prolexa:stored_rule(_,_)),"I am a blank slate")) --> forgetall. 
+command(g(retractall(prolexa:stored_rule(,)),"I am a blank slate")) --> forgetall. 
 command(g(all_rules(Answer),Answer)) --> kbdump. 
 command(g(all_answers(PN,Answer),Answer)) --> tellmeabout,proper_noun(s,PN).
 
@@ -236,4 +233,4 @@ random_fact(X):-
 % pf("According to Wikipedia, Pieter Adriaan Flach is a Dutch computer scientist and a Professor of Artificial Intelligence in the Department of Computer Science at the University of Bristol.").
 % 
 % iai("The Centre for Doctoral Training in Interactive Artificial Intelligence will train the next generation of innovators in human-in-the-loop AI systems, enabling them to responsibly solve societally important problems. You can ask Peter for more information.").
-% 
+%
